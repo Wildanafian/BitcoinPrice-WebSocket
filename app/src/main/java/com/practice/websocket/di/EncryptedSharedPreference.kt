@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class EncryptedSharedPreference {
+object EncryptedSharedPreference {
 
     @Singleton
     @Provides

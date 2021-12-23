@@ -13,7 +13,6 @@ class MainActivity : AppCompatActivity() {
     private val bind by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        reportFullyDrawn()
         super.onCreate(savedInstanceState)
         with(bind) {
             setContentView(root)

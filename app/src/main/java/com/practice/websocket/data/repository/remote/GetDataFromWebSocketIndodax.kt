@@ -6,7 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.practice.websocket.constant.AllYouNeed.IndodaxPoint
 import com.practice.websocket.constant.AllYouNeed.IndodaxPref
+import com.practice.websocket.constant.AllYouNeed.SubsAuthIndodax
+import com.practice.websocket.constant.AllYouNeed.SubsIndodax
 import com.practice.websocket.constant.AllYouNeed.TAG
+import com.practice.websocket.constant.AllYouNeed.UnSubsIndodax
 import com.practice.websocket.data.model.ResponseIndodax
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,25 +17,19 @@ import kotlinx.coroutines.launch
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
-import javax.inject.Inject
 import javax.net.ssl.SSLSocketFactory
 
-class GetDataFromWebSocketIndodax @Inject constructor(private val sharedPreference: SharedPreferences) {
+class GetDataFromWebSocketIndodax (private val sharedPreference: SharedPreferences) {
+
     private lateinit var webSocket: WebSocketClient
     private var priceData = MutableLiveData<ResponseIndodax>().apply { postValue(Gson().fromJson(sharedPreference.getString(IndodaxPref, null), ResponseIndodax::class.java) ?: ResponseIndodax()) }
 
     fun initWebSocket() {
-        createWebSocketClient()
-        webSocket.setSocketFactory(SSLSocketFactory.getDefault() as SSLSocketFactory)
-        webSocket.connect()
-    }
-
-    private fun createWebSocketClient() {
         webSocket = object : WebSocketClient(URI(IndodaxPoint)) {
             override fun onOpen(handshakedata: ServerHandshake?) {
                 Log.d(TAG, "onOpen: Indodax")
-                subscribeAuth()
-                subscribe()
+                webSocket.send(SubsAuthIndodax)
+                webSocket.send(SubsIndodax)
             }
 
             override fun onMessage(message: String?) {
@@ -41,42 +38,20 @@ class GetDataFromWebSocketIndodax @Inject constructor(private val sharedPreferen
                 if (data.id == null) priceData.postValue(data)
             }
 
-            override fun onClose(code: Int, reason: String?, remote: Boolean) {
-                unSubscribe()
-            }
+            override fun onClose(code: Int, reason: String?, remote: Boolean) {}
 
             override fun onError(ex: Exception?) {
                 Log.d(TAG, "onError: ${ex?.localizedMessage}")
             }
         }
+        webSocket.connect()
     }
 
-    private fun subscribeAuth() {
-        webSocket.send(
-            "{\n" +
-                    "    \"params\": {\n" +
-                    "        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE5NDY2MTg0MTV9.UR1lBM6Eqh0yWz-PVirw1uPCxe60FdchR8eNVdsskeo\"\n" +
-                    "    },\n" +
-                    "    \"id\": 1\n" +
-                    "}\n"
-        )
+    fun getPriceData(): MutableLiveData<ResponseIndodax> {
+        return priceData
     }
 
-    private fun subscribe() {
-        webSocket.send(
-            "{\n" +
-                    "    \"method\": 1,\n" +
-                    "    \"params\": {\n" +
-                    "        \"channel\": \"chart:tick-btcidr\",\n" +
-                    "        \"recover\": true,\n" +
-                    "        \"offset\": 820574\n" +
-                    "    },\n" +
-                    "    \"id\": 2\n" +
-                    "}"
-        )
-    }
-
-    private fun unSubscribe() {
+    fun closeConnection() {
         CoroutineScope(Dispatchers.IO).launch {
             launch {
                 with(sharedPreference.edit()) {
@@ -85,24 +60,8 @@ class GetDataFromWebSocketIndodax @Inject constructor(private val sharedPreferen
                 }
             }
             launch {
-                webSocket.send(
-                    "{\n" +
-                            "    \"method\": 2,\n" +
-                            "    \"params\": {\n" +
-                            "        \"channel\": \"chart:tick-btcidr\"\n" +
-                            "    },\n" +
-                            "    \"id\": 3\n" +
-                            "}"
-                )
+                if (webSocket.isOpen) webSocket.send(UnSubsIndodax)
             }
         }
-    }
-
-    fun getPriceData(): MutableLiveData<ResponseIndodax> {
-        return priceData
-    }
-
-    fun closeConnection() {
-        unSubscribe()
     }
 }

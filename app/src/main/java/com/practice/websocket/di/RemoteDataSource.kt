@@ -7,17 +7,14 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class RemoteDataSource {
+object RemoteDataSource {
 
-    @Singleton
     @Provides
     fun provideRemoteCoinbase(sharedPreference: SharedPreferences) = GetDataFromWebSocketCoinbase(sharedPreference)
 
-    @Singleton
     @Provides
     fun provideRemoteIndodax(sharedPreference: SharedPreferences) = GetDataFromWebSocketIndodax(sharedPreference)
 
