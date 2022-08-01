@@ -1,8 +1,8 @@
-package com.practice.websocket.domain
+package com.practice.websocket.data.repository
 
 import kotlinx.coroutines.flow.Flow
 
-interface MainActivityUseCase {
+interface Repository {
 
     fun getDataCoinbase(): Flow<String>
 

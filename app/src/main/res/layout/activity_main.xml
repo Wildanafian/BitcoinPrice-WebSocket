@@ -9,30 +9,29 @@
         tools:context=".ui.MainActivity">
 
         <TextView
-            android:id="@+id/price"
+            android:id="@+id/tvCoinbasePrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{data.dataStreamCoinbase}"
+            android:text="@{`USD `+data.btcPriceCoinbase}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/price2"
+            android:id="@+id/tvIndodaxPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="@{data.dataStreamIndodax}"
+            android:text="@{`Rp `+data.btcPriceIndodax}"
             app:layout_constraintHorizontal_bias="0.501"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/price" />
+            app:layout_constraintTop_toBottomOf="@+id/tvCoinbasePrice" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <data>
-
         <variable
             name="data"
             type="com.practice.websocket.ui.MainActivityViewModel" />

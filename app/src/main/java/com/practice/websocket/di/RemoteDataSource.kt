@@ -1,21 +1,34 @@
 package com.practice.websocket.di
 
-import android.content.SharedPreferences
-import com.practice.websocket.data.repository.remote.GetDataFromWebSocketCoinbase
-import com.practice.websocket.data.repository.remote.GetDataFromWebSocketIndodax
+import com.practice.websocket.data.model.ResponseCoinbase
+import com.practice.websocket.data.model.ResponseIndodax
+import com.practice.websocket.data.repository.remote.CoinbaseSource
+import com.practice.websocket.data.repository.remote.IndodaxSource
+import com.practice.websocket.data.repository.remote.WebSocketSource
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Qualifier
 
 @Module
 @InstallIn(SingletonComponent::class)
-object RemoteDataSource {
+interface RemoteDataSource {
 
-    @Provides
-    fun provideRemoteCoinbase(sharedPreference: SharedPreferences) = GetDataFromWebSocketCoinbase(sharedPreference)
+    @Binds
+    @Coinbase
+    fun provideRemoteCoinbase(coinbaseSource: CoinbaseSource): WebSocketSource<ResponseCoinbase>
 
-    @Provides
-    fun provideRemoteIndodax(sharedPreference: SharedPreferences) = GetDataFromWebSocketIndodax(sharedPreference)
+    @Binds
+    @Indodax
+    fun provideRemoteIndodax(indodaxSource: IndodaxSource): WebSocketSource<ResponseIndodax>
 
 }
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Coinbase
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Indodax

@@ -1,7 +1,7 @@
 package com.practice.websocket.di
 
-import com.practice.websocket.data.repository.GetDataRepository
-import com.practice.websocket.data.repository.GetDataRepositoryImpl
+import com.practice.websocket.data.repository.Repository
+import com.practice.websocket.data.repository.RepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -12,6 +12,6 @@ import dagger.hilt.components.SingletonComponent
 interface Repository {
 
     @Binds
-    fun provideRepository(repository: GetDataRepositoryImpl) : GetDataRepository
+    fun provideRepository(repository: RepositoryImpl): Repository
 
 }

@@ -1,25 +1,16 @@
 package com.practice.websocket.domain
 
-import androidx.lifecycle.LiveData
-import com.practice.websocket.data.repository.GetDataRepository
+import com.practice.websocket.data.repository.Repository
 import javax.inject.Inject
 
-class MainActivityUseCaseImpl @Inject constructor(private val repository: GetDataRepository) :
+class MainActivityUseCaseImpl @Inject constructor(private val repository: Repository) :
     MainActivityUseCase {
 
-    override fun initConnection() {
-        repository.initConnection()
-    }
+    override fun getDataCoinbase() = repository.getDataCoinbase()
 
-    override fun closeConnection() {
-        repository.closeConnection()
-    }
 
-    override fun getDataCoinbase(): LiveData<String> {
-        return repository.getDataCoinbase()
-    }
+    override fun getDataIndodax() = repository.getDataIndodax()
 
-    override fun getDataIndodax(): LiveData<String> {
-        return repository.getDataIndodax()
-    }
+
+    override fun closeConnection() = repository.closeConnection()
 }

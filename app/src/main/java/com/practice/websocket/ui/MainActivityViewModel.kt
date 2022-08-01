@@ -1,20 +1,26 @@
 package com.practice.websocket.ui
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.practice.websocket.domain.MainActivityUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class MainActivityViewModel @Inject constructor(private val useCase: MainActivityUseCase) : ViewModel() {
+class MainActivityViewModel @Inject constructor(private val useCase: MainActivityUseCase) :
+    ViewModel() {
 
     fun initConnection() {
         viewModelScope.launch {
-            useCase.initConnection()
+            getDataStreamCoinbase()
+            getDataStreamIndodax()
         }
     }
 
@@ -24,18 +30,32 @@ class MainActivityViewModel @Inject constructor(private val useCase: MainActivit
         }
     }
 
-    fun getDataStreamCoinbase(): LiveData<String> {
-        return Transformations.map(useCase.getDataCoinbase()) {
-            if (it == null || it == "null") "Searching Data..."
-            else "Coinbase : $it USD"
+    private val _btcPriceCoinbase = MutableLiveData<String>()
+    val btcPriceCoinbase: LiveData<String> = _btcPriceCoinbase
+    private fun getDataStreamCoinbase() {
+        viewModelScope.launch(Dispatchers.Main) {
+            useCase.getDataCoinbase()
+                .collect {
+                    _btcPriceCoinbase.postValue(it.ifEmpty { "0" }.formatNumber())
+                }
         }
     }
 
-    fun getDataStreamIndodax(): LiveData<String> {
-        return Transformations.map(useCase.getDataIndodax()) {
-            if (it == null || it == "null") "Searching Data..."
-            else "Indodax : Rp $it"
+    private val _btcPriceIndodax = MutableLiveData<String>()
+    val btcPriceIndodax: LiveData<String> = _btcPriceIndodax
+    private fun getDataStreamIndodax() {
+        viewModelScope.launch(Dispatchers.Main) {
+            useCase.getDataIndodax()
+                .collect {
+                    _btcPriceIndodax.postValue(it.ifEmpty { "0" }.formatNumber())
+                }
         }
+    }
+
+    private fun String.formatNumber(): String {
+        val formater = NumberFormat.getIntegerInstance(Locale.GERMANY)
+        formater.maximumFractionDigits = 2
+        return formater.format(this.toDouble())
     }
 
 }
